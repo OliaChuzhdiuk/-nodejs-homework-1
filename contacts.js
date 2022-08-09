@@ -20,22 +20,27 @@ async function getContactById(contactId) {
 
 async function removeContact(contactId) {
   const contacts = await listContacts();
-  const newContacts = JSON.stringify(
-    contacts.filter(({ id }) => id !== contactId)
-  );
-  await fs.writeFile(contactsPath, newContacts);
+  const newContacts = contacts.filter(({ id }) => id !== contactId);
+  try {
+    await fs.writeFile(contactsPath, JSON.stringify(newContacts));
+    console.log(`Contact with id=${contactId} was removed`);
+  } catch (err) {
+    console.log(err.message);
+  }
 }
 
 async function addContact(name, email, phone) {
   const contacts = await listContacts();
-  const id = require("nanoid").nanoid();
-  const newContacts = JSON.stringify(
-    [...contacts, { id, name, email, phone }],
-    null,
-    2
-  );
-  await fs.writeFile(contactsPath, newContacts);
+  const newContact = { id: require("nanoid").nanoid(), name, email, phone };
+  const newContacts = [...contacts, newContact];
+  try {
+    await fs.writeFile(contactsPath, JSON.stringify(newContacts));
+    console.log(`Contact with name=${name} was added to database`);
+  } catch (err) {
+    console.log(err.message);
+  }
 }
+
 const contactsOperations = {
   listContacts,
   getContactById,
